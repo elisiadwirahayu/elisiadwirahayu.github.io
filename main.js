@@ -37,7 +37,10 @@ saveBtn.addEventListener("click", () => {
     },
   };
 
-  fetch("http://127.0.0.1:8000/predict-image", requestOptions)
+  fetch(
+    "https://klasifikasi-aksara-jawa-oecjag7aea-uc.a.run.app/predict-image",
+    requestOptions
+  )
     .then((response) => response.text())
     .then((result) => {
       console.log(result);
@@ -54,8 +57,39 @@ saveBtn.addEventListener("click", () => {
   data = "";
 });
 
-window.addEventListener("mousedown", (e) => (draw = true));
-window.addEventListener("mouseup", (e) => (draw = false));
+window.addEventListener("mousedown", (e) => {
+  draw = true;
+});
+window.addEventListener("mouseup", (e) => {
+  draw = false;
+  let data = canvas.toDataURL("image/jpeg");
+  var requestOptions = {
+    method: "POST",
+    body: JSON.stringify({ imgbase64: data }),
+    redirect: "follow",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  fetch(
+    "https://klasifikasi-aksara-jawa-oecjag7aea-uc.a.run.app/predict-image",
+    requestOptions
+  )
+    .then((response) => response.text())
+    .then((result) => {
+      console.log(result);
+      let res = JSON.parse(result);
+      let confidence = res.data.confidence;
+      let label = res.data.label;
+      let labelEl = document.querySelector("#result");
+      let confidenceEl = document.querySelector("#confidence");
+      labelEl.innerHTML = label;
+      confidenceEl.innerHTML = confidence;
+    })
+    .catch((error) => console.log("error", error));
+  console.log(data);
+});
 
 window.addEventListener("mousemove", function (e) {
   const vw = window.innerWidth;
